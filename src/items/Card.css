@@ -3,6 +3,7 @@
     border-radius: 5px;
     height: calc(3.5 * 30px);
     width:  calc(1.5 * 30px);
+    padding: 2em;
     position: relative;
     display: flex;
     align-items: center;
