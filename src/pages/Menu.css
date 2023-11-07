@@ -1,0 +1,17 @@
+button {
+    margin-left: 1em;
+    margin-right: 1em;
+}
+
+body {
+    background-image: linear-gradient(to right, black, red , white 20% 80%, red, black);
+}
+
+h1 small {
+    margin: 2rem;
+    font-size: .5em;
+}
+
+.btn-game {
+    padding: initial 5rem;
+}
