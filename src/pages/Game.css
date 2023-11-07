@@ -1,3 +1,7 @@
 .hand > div {
     display: inline-block;
 }
+
+body {
+    background-image: linear-gradient(green, palegreen);
+}

@@ -5,7 +5,7 @@ import './Game.css';
 
 export default function Game ({alterPage}: {alterPage: Function}) {
 
-    return <>
+    return <main>
         <div className="hand">
             <div>
                 <Card {...{suit: 'C', rank: 'J'}}/>
@@ -14,5 +14,5 @@ export default function Game ({alterPage}: {alterPage: Function}) {
                 <Card {...{suit: 'H', rank: '7'}}/>
             </div>
         </div>
-    </>
+    </main>
 }
