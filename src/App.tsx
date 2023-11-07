@@ -1,9 +1,13 @@
 import { useState } from 'react';
 import './App.css';
 import Game from './pages/Game';
+import Menu from './pages/Menu';
 
 export default function App() {
-    const [page, setPage] = useState('game');
+    const [page, setPage] = useState('menu');
+    const [settings, setSettings] = useState({
+        hasDealer: true 
+    });
 
     /**
      * Changes the app page to a different one such as main menu, game, or settings.
@@ -18,9 +22,13 @@ export default function App() {
         setPage(str);
     }
 
+    function alterSettings (obj: any) {
+        setSettings((settings: any) => ({...settings, ...obj}));
+    }
+
     switch (page) {
         case 'menu':
-            return <Game {...{alterPage}}/>;
+            return <Menu {...{alterPage, alterSettings}}/>;
             break;
         case 'settings':
             return <Game {...{alterPage}}/>;
