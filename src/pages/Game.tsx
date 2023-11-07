@@ -13,5 +13,6 @@ export default function Game ({alterPage}: {alterPage: Function}) {
                 <Card {...{suit: 'H', rank: '7'}}/>
             </div>
         </div>
+        <button id="back" onClick={() => alterPage('menu')}>Back</button>
     </main>
 }

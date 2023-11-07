@@ -5,3 +5,10 @@
 body {
     background-image: linear-gradient(green, palegreen);
 }
+
+button.back {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    margin: 2rem;
+}
