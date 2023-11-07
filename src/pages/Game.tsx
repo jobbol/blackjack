@@ -2,7 +2,6 @@ import Card from "../items/Card";
 import './Game.css';
 
 
-
 export default function Game ({alterPage}: {alterPage: Function}) {
 
     return <>

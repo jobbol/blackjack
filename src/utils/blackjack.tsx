@@ -6,11 +6,137 @@ interface cardObject {
     suit:  string
 }
 
+const bustAmount = 22;
 
 
 
 export default class Blackjack {
-    
+    deck: Deck;
+    users: Card[][];
+    hasDealer: boolean;
+
+    /**
+     * Starts a new game of Blackjack.
+     * @param {number} [userCount=2] - The number of users in the game. Deal counts as user.
+     * @param {boolean} [hasDealer=2] - If true the dealer is playing a hand as well.
+     * Dealer will always be userIndex 0.  Players will start at index 1.
+     */
+    constructor ({userCount = 2, hasDealer = true}: {userCount: number, hasDealer: boolean}) {
+        this.hasDealer = hasDealer;
+        this.deck = new Deck();
+        this.deck.shuffle();
+        this.users = [...Array(userCount)].map(() => this.deck.remove(2));
+    }
+
+    /**
+     * Gives a specified user a card.  Returns user's new hand.
+     * @param {number} userIndex
+     * @returns {Card[]}
+     */
+    hit (userIndex: number): Card[] {
+        this.users[userIndex].push(...this.deck.remove());
+        return this.users[userIndex];
+    }
+
+    /**
+     * Causes the dealer to hit or stay.
+     * 
+     * @typedef {Object} dealerAction
+     * @property {string} action - The action the dealer took: 'hit' or 'stay'.
+     * @property {Card[]} hand - Array of cards the dealer currently has.
+     * 
+     * @returns {dealerAction} where action is the action the dealer has taken, and hand is the dealer's current hand.
+     */
+    dealerAction () {
+       if (!this.hasDealer) {
+        throw new Error('blackjack.dealerAction() cannot be called, if no dealer exists in the game.');
+       }
+
+       //Dealer hits on 16 and below and stands on 17 and above.
+        if (this.getUserScore(0) < 16) {
+            return {action: 'hit',  hand: this.hit(0)};
+        } else {
+            return {action: 'stay', hand: this.users[0]};
+        }
+    }
+
+    /**
+     * Gets the total score of a specified user.
+     * @param {number} userIndex
+     * @returns {number}
+     */
+    getUserScore (userIndex: number) {
+        let score = this.users[userIndex].reduce((total, card) => total += card.toValue(), 0);
+
+        //Scores that aren't busted don't need to be checked.
+        if (score < bustAmount) {
+            return score;
+        }
+
+        //If the dealer has busted, return their score.
+        if (this.hasDealer && userIndex === 0) {
+            return score;
+        }
+
+        //If a player has busted, attempt to reduce score if they have aces.
+        let aces = this.users[userIndex].filter(card => card.rank === 'A').length;
+        while (score >= bustAmount && aces > 0) {
+            aces--;
+            score-=10;
+        }
+        return score;
+    }
+
+
+    /**
+     * Ends the current game.  Returns the winner and scores.
+     * For a new game, create a new Blackjack object.
+     * @typedef  {object} endStats
+     * @property {number[]} scores      - array of user scores.
+     * @property {number}   winnerIndex - index of the winning user.
+     * @property {boolean}  isTied      - true if there's a tie.
+     * @property {number[]} tiedUsers   - array of user indexes who have tied.
+     * @property {boolean}  isDealerDefaultWin - If the dealer won by default for all players busting.
+     * 
+     * @returns {endStats}
+     */
+    end () {
+        Object.freeze(this.users);
+        let scores = this.users.map((_undefined, i) => this.getUserScore(i));
+
+        let isTied = false;
+        let isDealerDefaultWin = false;
+        let tiedUsers: number[] = [];
+        let winnerIndex = -1;
+        let winnerScore = 0;
+
+        scores.forEach((score, index) => {
+            //If this score isn't a bust and is the lowest, then make this the winner and reset possible ties.
+            if (score < bustAmount && score > winnerScore) {
+                winnerIndex = index;
+                isTied = false;
+                tiedUsers = [];
+            }
+
+            //If this score is the equal to the winning score, then this is a tie.  Reset winner.
+            if (score < bustAmount && score === winnerScore) {
+                winnerIndex = -1;
+                if (tiedUsers.length === 0) {
+                    tiedUsers.push(winnerIndex);
+                }
+                tiedUsers.push(index);
+            }
+        });
+
+        //Dealer wins if dealer and all players bust.
+        if (scores.every(score => score >= bustAmount) && this.hasDealer) {
+            winnerIndex = 0;
+            winnerScore = scores[0];
+            isDealerDefaultWin = true;
+        }
+
+        return {scores, winnerIndex, isTied, tiedUsers, isDealerDefaultWin};
+    }
 }
 
 
@@ -26,8 +152,44 @@ export class Deck {
         }
     }
 
+    /**
+     * Shuffles deck in place using Fisher-Yates algo.
+     */
     shuffle () {
+        let m = this.deck.length;
+        let i;
 
+        //As long as there are elements to shuffle.
+        while (m) {
+            //Pick a random element.
+            i = Math.floor(Math.random() * m--);
+
+            //And swap it with the current element.
+            [this.deck[m], this.deck[i]] = [this.deck[i], this.deck[m]];
+        }
+    }
+
+    /**
+     * Removes n-amount of cards from the top of the deck. and returns them.  Default 1 card.
+     * @param {number} amount
+     * @returns {cards[]}
+     */
+    remove (amount = 1) {
+        return this.deck.splice(0, amount);
+    }
+
+    /**
+     * Adds cards to the bottom of the deck.
+     * @param {Card} cards - A card or array of cards to add.
+     */
+    add (cards: Card | Card[]) {
+        if (cards instanceof Card) {
+            cards = [cards];
+        }
+        if (!Array.isArray(cards)) {
+            throw new Error('deck.add() must be passed a card or array of cards.');
+        }
+        this.deck = [...this.deck, ...cards];
     }
 }
 
@@ -45,14 +207,19 @@ export class Card {
         }
         this.rank = get.rank;
         this.suit = get.suit;
+        this.validate();
     }
 
     /**
      * Checks if a card has a valid rank and suit.
-     * @returns {boolean}
      */
-    validate () {
-
+    validate (): void {
+        if (![...'HDSC'].includes(this.suit)) {
+            throw new Error(`Card contains invalid suit of ${this.suit}.`);
+        }
+        if (![...'23456789','10',...'JQKA'].includes(this.rank)) {
+            throw new Error(`Card contains invalid rank of ${this.rank}.`);
+        }
     }
 
     /**
@@ -126,7 +293,5 @@ export class Card {
         return 'black';
     }
 }
-
-
 
 
