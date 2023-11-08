@@ -36,8 +36,5 @@ export default function App() {
         case 'game':
             return <Game {...{alterPage}}/>;
             break;
-        case 'menu':
-            return <Game {...{alterPage}}/>;
-            break;
     }
 }

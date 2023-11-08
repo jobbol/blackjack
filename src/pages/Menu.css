@@ -11,6 +11,16 @@ h1 small {
     margin: 2rem;
     font-size: .5em;
 }
+h1 small span {
+    margin: .2rem;
+}
+h1 small .red {
+    color: red;
+}
+
+h1 small .black {
+    color: black;
+}
 
 .btn-game {
     padding: initial 5rem;

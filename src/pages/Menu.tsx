@@ -1,20 +1,29 @@
 import './Menu.css';
+import 'bootstrap/dist/css/bootstrap.css';
+
 export default function Menu ({alterPage, alterSettings}: any) {
+    const suitsLeft = ['♦','♠','♥','♣'].map((char: string, i: number) => {
+        return <span className={i % 2? 'black' : 'red'} key={char}>{char}</span>
+    });
+    const suitsRight = ['♣','♥','♠','♦'].map((char: string, i: number) => {
+        return <span className={i % 2? 'red' : 'black'} key={char}>{char}</span>
+    });
+
     return <main>
         <h1>
-            <small>♦ ♠ ♥ ♣</small>
+            <small>{suitsLeft}</small>
             <span>Blackjack</span>
-            <small>♣ ♥ ♠ ♦</small>
+            <small>{suitsRight}</small>
         </h1>
-        {/* <div id="suits">♦ ♥ ♠ ♣</div> */}
+        <div className="jumbotron">asdfjasdfj</div>
         <button
-            className="btn-secondary"
+            className="button btn-secondary"
             onClick={() => {
                 alterSettings({hasDealer: false});
                 alterPage('game');
         }}>Multiplayer</button>
         <button 
-            className="btn-primary btn-game"
+            className="button btn-primary btn-game"
             onClick={() => {
                 alterSettings({hasDealer: true});
                 alterPage('game');
