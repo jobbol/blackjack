@@ -2,12 +2,15 @@ import { useState } from 'react';
 import './App.css';
 import Game from './pages/Game';
 import Menu from './pages/Menu';
+import * as blackjack from './utils/blackjack-react';
 
 export default function App() {
     const [page, setPage] = useState('menu');
     const [settings, setSettings] = useState({
-        hasDealer: true 
+        hasDealer: true,
+        userCount: 2
     });
+    const [users, setUsers] = useState([[]]);
 
     /**
      * Changes the app page to a different one such as main menu, game, or settings.
@@ -19,6 +22,9 @@ export default function App() {
         if (!validPages.includes(str)) {
             throw new Error(`alterPage() did not find a page called ${str}.  Valid pages are ${validPages.join(', ')}.`);
         }
+        if (str === 'game') {
+            blackjack.init({setUsers, userCount: settings.userCount});
+        }
         setPage(str);
     }
 
@@ -26,15 +32,19 @@ export default function App() {
         setSettings((settings: any) => ({...settings, ...obj}));
     }
 
-    switch (page) {
-        case 'menu':
-            return <Menu {...{alterPage, alterSettings}}/>;
-            break;
-        case 'settings':
-            return <Game {...{alterPage}}/>;
-            break;
-        case 'game':
-            return <Game {...{alterPage}}/>;
-            break;
+    function getPage () {
+        switch (page) {
+            case 'menu':
+                return <Menu {...{alterPage, alterSettings}}/>;
+                break;
+            case 'settings':
+                return <div></div>;
+                break;
+            case 'game':
+                return <Game {...{alterPage, settings, users, setUsers}}/>;
+                break;
+        }
     }
+
+    return <main id={page}>{getPage()}</main>
 }
