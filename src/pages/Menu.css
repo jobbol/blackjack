@@ -1,10 +1,17 @@
+main#menu {
+    background-image: linear-gradient(to right, black, red , white 20% 80%, red, black);
+}
+
 button {
     margin-left: 1em;
     margin-right: 1em;
 }
 
-body {
-    background-image: linear-gradient(to right, black, red , white 20% 80%, red, black);
+h1 {
+        text-shadow: -7px 0  3px hsl(187, 100%, 50%, .07),
+                 -5px 0  7px hsl(212, 100%, 59%, .07),
+                  5px 0 13px hsl(234, 100%, 69%, .07),
+                  25px 0 15px hsl(295, 100%, 66%, .07);
 }
 
 h1 small {
@@ -22,6 +29,12 @@ h1 small .black {
     color: black;
 }
 
-.btn-game {
-    padding: initial 5rem;
+#button-container {
+    margin: 2rem;
 }
+#button-container button {
+    padding: initial 5rem;
+
+    font-size: 1.35rem;
+}
+
