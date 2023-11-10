@@ -1,14 +1,85 @@
-.hand > div {
-    display: inline-block;
-}
-
-body {
+main#game {
     background-image: linear-gradient(green, palegreen);
 }
 
-button.back {
+.hand > div,
+.hand > span {
+    float: left;
+}
+
+.hand span {
+    width: 55px;
+}
+
+.hand {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 3rem 0;
+}
+
+.hand-self {
+    bottom: 7%;
+}
+
+.hand-opponent {
+    top: 0;
+}
+
+
+
+.hand span{
+    position: absolute;
+    text-shadow: 0 0 10px lightgray;
+    left: -60px;
+    width: 80px;
+    top: 0;
+    transform: rotate(-90deg);
+}
+
+
+
+/* .hand-self::before{
+    content: 'You';
+    position: absolute;
+    left: -30px;
+    top: 0;
+    transform: rotate(-90deg);
+}
+
+
+.hand-opponent::before{
+    content: 'Dealer';
+    position: absolute;
+    left: -40px;
+    top: 0;
+    transform: rotate(-90deg);
+} */
+
+button#back {
     position: absolute;
     bottom: 0;
     left: 0;
     margin: 2rem;
+    font-size: 1.5rem;
+}
+
+.player-actions {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    margin-bottom: 2rem;
+
+}
+
+.player-actions button {
+    font-size: 1.5rem;
+    min-width: 3rem;
+}
+.player-actions #stay {
+    background-color: rgb(250, 221, 226);
+}
+.player-actions #hit {
+    background-color: rgb(222, 248, 253);
 }
