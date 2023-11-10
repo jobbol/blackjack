@@ -3,12 +3,22 @@ import {Card, Deck} from "./blackjack";
 let deck: Deck;
 const bustAmount = 22;
 
+/**
+ * Starts a new game of Blackjack.
+ * @param {function} setUsers - React function which alters all user hands.
+ * @param {number} userCount - Number of users / bots in the game.  The dealer is included in this number.
+ */
 export function init ({setUsers, userCount = 2}: {setUsers: Function, userCount: number}) {
     deck = new Deck();
     deck.shuffle();
     setUsers([...Array(userCount)].map(() => deck.remove(2)));
 }
 
+/**
+ * Gives a specified user a card.  Returns user's new hand.
+ * @param {function} setUsers - React function which alters all user hands.
+ * @param {number} userIndex
+ */
 export function hit ({userIndex, setUsers}: any) {
     setUsers((users:Card[][]) => {
         return users.map((user,i) => {
@@ -19,6 +29,31 @@ export function hit ({userIndex, setUsers}: any) {
         });
     });
 }
+
+/**
+ * Gives the player a card.  On bust starts dealer action.
+ * @param {function} setUsers - React function which alters all user hands.
+ * @param {number} userIndex
+ */
+export function playerHitAction (params) {
+    const {setUsers, setPlayerTurn} = params;
+
+    setUsers((users:Card[][]) => {
+        return users.map((user,i) => {
+            if (i !== 1) {
+                return user;
+            }
+
+            const hand = [...user, ...deck.remove()];
+            if (getUserScore({...params, userOverride: hand}) >= bustAmount) {
+                setPlayerTurn(false);
+            }
+            return hand;
+        });
+    });
+}
+
+
 
 export function dealerAction (params: any) {
     let {hasDealer, users, setUsers} = params;
@@ -34,8 +69,9 @@ export function dealerAction (params: any) {
     }
 }
 
-export function getUserScore ({users, userIndex, hasDealer}: any) {
-    let score = users[userIndex].reduce((total: number, card: Card) => total += card.toValue(), 0);
+export function getUserScore ({users, userOverride, userIndex, hasDealer}: any) {
+    users = userOverride ?? users[userIndex];
+    let score = users.reduce((total: number, card: Card) => total += card.toValue(), 0);
 
     //Scores that aren't busted don't need to be checked.
     if (score < bustAmount) {
@@ -48,7 +84,7 @@ export function getUserScore ({users, userIndex, hasDealer}: any) {
     }
 
     //If a player has busted, attempt to reduce score if they have aces.
-    let aces = users[userIndex].filter((card: Card) => card.rank === 'A').length;
+    let aces = users.filter((card: Card) => card.rank === 'A').length;
     while (score >= bustAmount && aces > 0) {
         aces--;
         score-=10;
