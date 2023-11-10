@@ -110,33 +110,36 @@ export default class Blackjack {
         let winnerIndex = -1;
         let winnerScore = 0;
 
-        scores.forEach((score, index) => {
+        scores.forEach((score: number, index: number) => {
             //If this score isn't a bust and is the lowest, then make this the winner and reset possible ties.
             if (score < bustAmount && score > winnerScore) {
                 winnerIndex = index;
+                winnerScore = score;
                 isTied = false;
                 tiedUsers = [];
+                return;
             }
 
             //If this score is the equal to the winning score, then this is a tie.  Reset winner.
             if (score < bustAmount && score === winnerScore) {
-                winnerIndex = -1;
                 if (tiedUsers.length === 0) {
                     tiedUsers.push(winnerIndex);
                 }
                 tiedUsers.push(index);
+                isTied = true;
+                winnerIndex = -1;
             }
         });
 
-        //Dealer wins if dealer and all players bust.
-        if (scores.every(score => score >= bustAmount) && this.hasDealer) {
-            winnerIndex = 0;
-            winnerScore = scores[0];
-            isDealerDefaultWin = true;
-        }
+            //Dealer wins if dealer and all players bust.
+            if (scores.every((score: number) => score >= bustAmount) && this.hasDealer) {
+                winnerIndex = 0;
+                winnerScore = scores[0];
+                isDealerDefaultWin = true;
+            }
 
-        return {scores, winnerIndex, isTied, tiedUsers, isDealerDefaultWin};
-    }
+            return {scores, winnerIndex, isTied, tiedUsers, isDealerDefaultWin};
+        }
 }
 
 
@@ -229,7 +232,11 @@ export class Card {
      * @returns {number}
      */
     toValue (): number {
-        let faces = ['J', 'Q', 'K', 'A'].some(r => r === this.rank);
+        if (this.rank === 'A') {
+            return 11;
+        }
+
+        let faces = ['J', 'Q', 'K'].some(r => r === this.rank);
 
         if (faces) {
             return 10;

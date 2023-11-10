@@ -2,13 +2,8 @@ main#game {
     background-image: linear-gradient(green, palegreen);
 }
 
-.hand > div,
-.hand > span {
+.hand .card-container {
     float: left;
-}
-
-.hand span {
-    width: 55px;
 }
 
 .hand {
@@ -28,15 +23,23 @@ main#game {
 
 
 
-.hand span{
+.hand .name-and-score {
     position: absolute;
-    text-shadow: 0 0 10px lightgray;
-    left: -60px;
-    width: 80px;
     top: 0;
-    transform: rotate(-90deg);
+    left: 0;
+    transform: translateX(-100%);
+    text-shadow: 0 0 10px lightgray;
+    font-size: 1.5rem;
+    /* width: 80px; */
 }
 
+.hand .name-and-score p {
+    margin: 0;
+}
+
+.hand .name-and-score .bust {
+    color: maroon;
+}
 
 
 /* .hand-self::before{
@@ -82,4 +85,9 @@ button#back {
 }
 .player-actions #hit {
     background-color: rgb(222, 248, 253);
+}
+
+#end-stats {
+    font-size: 2rem;
+    margin-top: -2rem;
 }

@@ -1,31 +1,38 @@
 import {Card, Deck} from "./blackjack";
 
 let deck: Deck;
-const bustAmount = 22;
+export const bustAmount = 22;
 
 /**
  * Starts a new game of Blackjack.
  * @param {function} setUsers - React function which alters all user hands.
  * @param {number} userCount - Number of users / bots in the game.  The dealer is included in this number.
  */
-export function init ({setUsers, userCount = 2}: {setUsers: Function, userCount: number}) {
+export function init ({setUsers, userCount = 2, setGameProgress}: any) {
     deck = new Deck();
     deck.shuffle();
     setUsers([...Array(userCount)].map(() => deck.remove(2)));
+    if (setGameProgress) {
+        setGameProgress(0);
+    }
 }
 
 /**
- * Gives a specified user a card.  Returns user's new hand.
+ * Gives a specified user a card.
  * @param {function} setUsers - React function which alters all user hands.
  * @param {number} userIndex
  */
-export function hit ({userIndex, setUsers}: any) {
+export function hit (params: any) {
+    const {userIndex, setUsers} = params;
+    let score: number;
     setUsers((users:Card[][]) => {
         return users.map((user,i) => {
             if (i !== userIndex) {
                 return user;
             }
-            return [...user, ...deck.remove()];
+            const hand = [...user, ...deck.remove()];
+            score = getUserScore({...params});
+            return hand;
         });
     });
 }
@@ -36,40 +43,52 @@ export function hit ({userIndex, setUsers}: any) {
  * @param {number} userIndex
  */
 export function playerHitAction (params) {
-    const {setUsers, setPlayerTurn} = params;
+    const {setUsers, setGameProgress} = params;
 
     setUsers((users:Card[][]) => {
         return users.map((user,i) => {
             if (i !== 1) {
                 return user;
             }
-
+            
             const hand = [...user, ...deck.remove()];
+
+            //If this action causes user to bust, end the game.
             if (getUserScore({...params, userOverride: hand}) >= bustAmount) {
-                setPlayerTurn(false);
+                setGameProgress(2);
             }
+
             return hand;
         });
     });
 }
 
-
-
+/**
+ * Unflips dealer card.
+ * Dealer may hit multiple times.
+ * Ends game.
+ */
 export function dealerAction (params: any) {
-    let {hasDealer, users, setUsers} = params;
-    if (!hasDealer) {
-        throw new Error('dealerAction() cannot be called, if no dealer exists in the game.');
+    let {setUsers, gameProgress, setGameProgress} = params;
+
+    if (gameProgress === 0) {
+        setGameProgress(1);
     }
 
     //Dealer hits on 16 and below and stands on 17 and above.
     if (getUserScore({...params, userIndex: 0}) < 16) {
-        return {action: 'hit',  hand: hit({userIndex: 0, setUsers})};
+        hit({...params, userIndex: 0});
     } else {
-        return {action: 'stay', hand: users[0]};
+        setGameProgress(2);
     }
 }
 
+
+
 export function getUserScore ({users, userOverride, userIndex, hasDealer}: any) {
+    if (!userOverride && !users) {
+        debugger;
+    } 
     users = userOverride ?? users[userIndex];
     let score = users.reduce((total: number, card: Card) => total += card.toValue(), 0);
 
@@ -118,17 +137,20 @@ export function endStats (params: any) {
         //If this score isn't a bust and is the lowest, then make this the winner and reset possible ties.
         if (score < bustAmount && score > winnerScore) {
             winnerIndex = index;
+            winnerScore = score;
             isTied = false;
             tiedUsers = [];
+            return;
         }
 
         //If this score is the equal to the winning score, then this is a tie.  Reset winner.
         if (score < bustAmount && score === winnerScore) {
-            winnerIndex = -1;
             if (tiedUsers.length === 0) {
                 tiedUsers.push(winnerIndex);
             }
             tiedUsers.push(index);
+            isTied = true;
+            winnerIndex = -1;
         }
     });
 

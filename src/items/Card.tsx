@@ -25,7 +25,7 @@ export default function Card ({suit, rank, isDown}: {suit: string, rank: string,
 
     if (isDown) {
         return (
-            <div>
+            <div className="card-container">
                 <div className="card face-down">
                     <div className="inner-border">&nbsp;</div>
                 </div>
@@ -34,7 +34,7 @@ export default function Card ({suit, rank, isDown}: {suit: string, rank: string,
     }
 
     return (
-        <div>
+        <div className="card-container">
             <div className={"card " + color}>
                 <div className="corner tl">{suit}</div>
                 <div className="corner br">{suit}</div>
