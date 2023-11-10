@@ -200,6 +200,7 @@ export class Deck {
 export class Card {
     rank: string;
     suit: string;
+    isDown: boolean;
 
     constructor (get: cardObject) {
         if (!get) {
@@ -207,6 +208,7 @@ export class Card {
         }
         this.rank = get.rank;
         this.suit = get.suit;
+        this.isDown = true;
         this.validate();
     }
 
